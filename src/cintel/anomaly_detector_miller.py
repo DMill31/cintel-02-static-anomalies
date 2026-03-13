@@ -125,8 +125,8 @@ def main() -> None:
 
     # Create a new DataFrame named anomalies_df that contains
     # only the rows where EITHER
-    # the age is TOO HIGH OR
-    # the height is TOO HIGH.
+    # the age is TOO HIGH/LOW OR
+    # the height is TOO HIGH/LOW.
     # A single pipe (|) is the OR operator in polars.
     # We will use greater than or equal to (>=) to find values at or above the threshold and less than or equal to (<=) to find values at or below the threshold.
     anomalies_df: pl.DataFrame = df.filter(

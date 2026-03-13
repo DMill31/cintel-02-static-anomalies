@@ -11,7 +11,7 @@ Static Data
 - The clinic works with taxi and limousine trips.
 - Each row represents a trip with eighteen columns.
 - The columns focused on will be:
-  - Passenger_count: The number of passengers in the trip.
+  - Trip_distance: The distance of the trip in miles.
   - trip_duration: Calculated value of how long the trip was.
 
 Purpose
@@ -96,10 +96,31 @@ def main() -> None:
     # Name the result "df" as is customary.
     df: pl.DataFrame = pl.read_csv(DATA_FILE)
 
+    # Ensure that pickup and dropoff columns are datetime
+    df = df.with_columns(
+        [
+            pl.col("tpep_pickup_datetime").str.strptime(
+                pl.Datetime, format="%m/%d/%Y %I:%M:%S %p"
+            ),
+            pl.col("tpep_dropoff_datetime").str.strptime(
+                pl.Datetime, format="%m/%d/%Y %I:%M:%S %p"
+            ),
+        ]
+    )
+
+    # Create a new column named trip_duration that is the difference between dropoff and pickup in seconds
+    df = df.with_columns(
+        (
+            (
+                pl.col("tpep_dropoff_datetime") - pl.col("tpep_pickup_datetime")
+            ).dt.total_seconds()
+            / 60
+        ).alias("trip_duration")
+    )
+
     # Visually inspect the file in the data/ folder.
-    # It has columns named `age_years` and `height_inches`.
     # The DataFrame height attribute returns the number of rows.
-    LOG.info(f"Loaded {df.height} patient records")
+    LOG.info(f"Loaded {df.height} trip records")
 
     # ----------------------------------------------------
     # STEP 2: DEFINE THRESHOLDS AND DETECT ANOMALIES
@@ -107,37 +128,31 @@ def main() -> None:
     # An anomaly is any value greater than the threshold we set.
     # Domain rule for this example:
     # Anything above this value is suspicious.
-    LOG.info("Studying ages and heights to find anomalies...")
+    LOG.info("Studying trips to find anomalies...")
 
-    # x is age in years, so 100 is a reasonable upper limit for human age
-    MAX_REASONABLE_X_VALUE: Final[float] = 100.0
-    # x is age in years, so 18 is a reasonable lower limit for adults
-    MIN_REASONABLE_X_VALUE: Final[float] = 18.0
+    # x is trip distance in miles, so 15 is a reasonable upper limit for New York City
+    MAX_REASONABLE_X_VALUE: Final[float] = 15.0
 
-    # y is height in inches, so maybe 6 feet 2 inches (74 inches) is a reasonable upper limit for human height
-    MAX_REASONABLE_Y_VALUE: Final[float] = 74.0
-    # y is height in inches, so maybe 4 feet 8 inches (56 inches) is a reasonable lower limit for adult height
-    MIN_REASONABLE_Y_VALUE: Final[float] = 56.0
+    # y is trip duration in minutes, so 1 hour (60 minutes) is a reasonable upper limit for New York City
+    MAX_REASONABLE_Y_VALUE: Final[float] = 60.0
+    # y is trip duration in minutes, so maybe 5 minutes is a reasonable lower limit for typical trips
+    MIN_REASONABLE_Y_VALUE: Final[float] = 5.0
 
-    LOG.info(f"MAX_REASONABLE_X_VALUE: {MAX_REASONABLE_X_VALUE} in years")
-    LOG.info(f"MAX_REASONABLE_Y_VALUE: {MAX_REASONABLE_Y_VALUE} in inches")
-    LOG.info(f"MIN_REASONABLE_X_VALUE: {MIN_REASONABLE_X_VALUE} in years")
-    LOG.info(f"MIN_REASONABLE_Y_VALUE: {MIN_REASONABLE_Y_VALUE} in inches")
+    LOG.info(f"MAX_REASONABLE_X_VALUE: {MAX_REASONABLE_X_VALUE} in miles")
+    LOG.info(f"MAX_REASONABLE_Y_VALUE: {MAX_REASONABLE_Y_VALUE} in minutes")
+    LOG.info(f"MIN_REASONABLE_Y_VALUE: {MIN_REASONABLE_Y_VALUE} in minutes")
 
     # Create a new DataFrame named anomalies_df that contains
     # only the rows where EITHER
-    # the age is TOO HIGH OR
-    # the height is TOO HIGH.
+    # the trip distance is TOO LONG OR
+    # the trip duration is TOO LONG/SHORT.
     # A single pipe (|) is the OR operator in polars.
     # We will use greater than or equal to (>=) to find values at or above the threshold and less than or equal to (<=) to find values at or below the threshold.
     anomalies_df: pl.DataFrame = df.filter(
-        (
-            (pl.col("age_years") >= MAX_REASONABLE_X_VALUE)
-            | (pl.col("age_years") <= MIN_REASONABLE_X_VALUE)
-        )
+        (pl.col("trip_distance") >= MAX_REASONABLE_X_VALUE)
         | (
-            (pl.col("height_inches") >= MAX_REASONABLE_Y_VALUE)
-            | (pl.col("height_inches") <= MIN_REASONABLE_Y_VALUE)
+            (pl.col("trip_duration") >= MAX_REASONABLE_Y_VALUE)
+            | (pl.col("trip_duration") <= MIN_REASONABLE_Y_VALUE)
         )
     )
 
