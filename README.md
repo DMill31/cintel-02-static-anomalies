@@ -114,6 +114,7 @@ git add -A
 uvx pre-commit run --all-files
 
 uv run python -m cintel.anomaly_detector_case
+uv run python -m cintel.anomaly_detector_miller
 
 uv run ruff format .
 uv run ruff check . --fix
@@ -125,6 +126,25 @@ git push -u origin main
 ```
 
 </details>
+
+## Modification
+A new python script: anomaly_detector_miller.py was created based off of the original anomaly_detector_case.py.
+In this new script, adult age and heights are looked at rather than pediatric data.  Anomalies are still found, yet now with adults, the original code had to be modified.
+
+- Maximum Height: 6'2 (74 in)
+- Maximum Age: 100 years
+
+74 inches is tall enough for the general population, although there are taller humans, they are quite rare.
+Similarly, some people make it to 100 years old, but most don't.
+Given that these are adults, it was decided to also implement lower bounds.
+
+- Minimum Height: 4'8 (56 in)
+- Minimum Age: 18 years
+
+The lower height bound was going to be around 5 feet.  Almost everyone reaches at least 5 feet tall, so the lower bound was put a few inches below this benchmark.
+All adults should be at least 18 years old.
+
+With these new bounds in place, the output file (anomalies_miller.csv) found two anomalies from the input file (clinic_data_miller.csv).
 
 ## Notes
 
