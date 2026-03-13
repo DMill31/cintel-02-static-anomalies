@@ -1,17 +1,18 @@
 """
-anomaly_detector_miller.py - Project script
+taxi_anomaly_detector.py - Project script
 
 Author: Daniel Miller
 Date: 2026-03-13
 
 Static Data
 
-- Data is taken from a clinic's patient records.
+- Data is taken from Kaggle of the New York City Taxi and Limousine Commission.
 - The data is static, meaning it does not change over time and is not updated with new records.
-- The clinic works with adults from 21 to 118 years old.
-- Each row represents a patient visit with two key measurements:
-  - age_years: The patient's age in years.
-  - height_inches: The patient's height in inches.
+- The clinic works with taxi and limousine trips.
+- Each row represents a trip with eighteen columns.
+- The columns focused on will be:
+  - Passenger_count: The number of passengers in the trip.
+  - trip_duration: Calculated value of how long the trip was.
 
 Purpose
 
@@ -21,12 +22,12 @@ Purpose
 
 Paths (relative to repo root)
 
-    INPUT FILE: data/clinic_data_miller.csv
-    OUTPUT FILE: artifacts/anomalies_miller.csv
+    INPUT FILE: data/new_york_taxi_data.csv
+    OUTPUT FILE: artifacts/anomalies_taxi.csv
 
 Terminal command to run this file from the root project folder
 
-    uv run python -m cintel.anomaly_detector_miller
+    uv run python -m cintel.taxi_anomaly_detector
 """
 
 # === DECLARE IMPORTS (packages we will use in this project) ===
@@ -51,8 +52,8 @@ ARTIFACTS_DIR: Final[Path] = ROOT_DIR / "artifacts"
 
 # === DECLARE GLOBAL CONSTANTS FOR FILE PATHS ===
 
-DATA_FILE: Final[Path] = DATA_DIR / "clinic_data_miller.csv"
-OUTPUT_FILE: Final[Path] = ARTIFACTS_DIR / "anomalies_miller.csv"
+DATA_FILE: Final[Path] = DATA_DIR / "new_york_taxi_data.csv"
+OUTPUT_FILE: Final[Path] = ARTIFACTS_DIR / "anomalies_taxi.csv"
 
 
 # === DEFINE THE MAIN FUNCTION ===
