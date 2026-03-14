@@ -114,7 +114,10 @@ git add -A
 uvx pre-commit run --all-files
 
 uv run python -m cintel.anomaly_detector_case
+
 uv run python -m cintel.anomaly_detector_miller
+
+uv run python -m cintel.taxi_anomaly_detector
 
 uv run ruff format .
 uv run ruff check . --fix
@@ -145,6 +148,13 @@ The lower height bound was going to be around 5 feet.  Almost everyone reaches a
 All adults should be at least 18 years old.
 
 With these new bounds in place, the output file (anomalies_miller.csv) found two anomalies from the input file (clinic_data_miller.csv).
+
+## Fun Addition
+In addition to the two anomaly detectors for the medical patient datasets, another detector was created for a NYC taxi and limo dataset.
+The code can be found at src/cintel/taxi_anomaly_detector.py
+
+In this script, rather than focusing on height and weight, the focus is on taxi trip length and distance, just to see how different static anomaly detection can be.
+The taxi anomaly detector follows the same pattern as the other two scripts, as bounds are created and the data is filtered, but the dataset itself is much larger and has many more columns.
 
 ## Notes
 
